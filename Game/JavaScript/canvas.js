@@ -23,10 +23,28 @@ const onload=()=>{
     }
 
     //draw grass tile
-    let img2 = new Image()
-    img2.src = 'https://64.media.tumblr.com/5310eb96570ee4e51acae3ae0f57fd2e/9e54f617e5091267-f4/s540x810/cac009e7c086af567dc76a7690b8c4731d3b70d9.png'
-    img2.onload = function(){
-        ctx.drawImage(img2, 32, 32)
+    // let img2 = new Image()
+    // img2.src = 'https://64.media.tumblr.com/5310eb96570ee4e51acae3ae0f57fd2e/9e54f617e5091267-f4/s540x810/cac009e7c086af567dc76a7690b8c4731d3b70d9.png'
+    // img2.onload = function(){
+    //     ctx.drawImage(img2, 32, 32)
+    // }
+
+
+    //draw grid
+    let worldMapSize = 32 * 16
+
+    for(let i=32; i<=worldMapSize; i+=32){
+        
+        //vertical lines
+        ctx.moveTo(i, 32)
+        ctx.lineTo(i,worldMapSize)
+
+        //horizontal lines
+        ctx.moveTo(32, i)
+        ctx.lineTo(worldMapSize, i)
+
+        ctx.strokeStyle="#333333"
+        ctx.stroke()
     }
     
 }

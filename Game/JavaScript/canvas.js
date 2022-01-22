@@ -108,6 +108,7 @@ function createsMapList(numOfTiles){
             //polulates each list, 0=flat terrain, 1=impasable terrain
             val = createObstacles()
             worldMap[x][y] = val
+            drawSquare(val, x, y)
         }
     }
 }
@@ -121,4 +122,38 @@ function createObstacles(){
     let numOb = 0.75
     if(Math.random() > numOb) return 1
     return 0
+}
+
+
+// #4
+
+function renderWorlMap(colorNum, x, y){
+
+    //check for edge cases
+    if(!colNum || !x || !y) return
+
+
+}
+
+
+// #5
+function drawSquare(colorNumber, x, y){
+
+    let colorZ
+    let newX = (x+1)*tileSize
+    let newY = (y+1)*tileSize
+
+    switch(colorNumber){
+        case 1:
+            colorZ = '#000000' //black
+            break;
+        default:
+            colorZ = '#cccccc' //white - smoke
+    }
+
+    //chages the color of the fill
+    ctx.fillStyle = colorZ
+
+    //draw the rectangler
+    ctx.fillRect(newX, newY, tileSize, tileSize)
 }

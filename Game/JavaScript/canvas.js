@@ -1,3 +1,24 @@
+//global variable for the file
+
+    //canvas
+    let canvas
+    let ctx
+
+    //terain
+    let terrain
+
+
+    //map size in px
+    let tileSize = 32
+    let mapSize = tileSize * 16
+
+    /*  world map - list to be use for generating obstacles 
+        and use for path finding Algos                  */
+    world = []
+
+
+
+
 
 const onload=()=>{
     console.log('page is loaded')
@@ -11,43 +32,29 @@ const onload=()=>{
     canvas.height = 800
 
     // get context
-    let ctx = canvas.getContext("2d")
+    ctx = canvas.getContext("2d")
     ctx.fillStyle="F0F0F0"
 
 
-    //draw bolder tile
-    let img1 = new Image()
-    img1.src = '../Images/bolder-tile.png'
-    img1.onload = function(){
-        ctx.drawImage(img1, 0, 0)
-    }
-
-    //draw grass tile
-    // let img2 = new Image()
-    // img2.src = 'https://64.media.tumblr.com/5310eb96570ee4e51acae3ae0f57fd2e/9e54f617e5091267-f4/s540x810/cac009e7c086af567dc76a7690b8c4731d3b70d9.png'
-    // img2.onload = function(){
-    //     ctx.drawImage(img2, 32, 32)
-    // }
-
 
     //draw grid
-    let worldMapSize = 32 * 16
 
-    for(let i=32; i<=worldMapSize; i+=32){
+    for(let i=tileSize; i<=mapSize; i+=tileSize){
         
         //vertical lines
-        ctx.moveTo(i, 32)
-        ctx.lineTo(i,worldMapSize)
+        ctx.moveTo(i, tileSize)
+        ctx.lineTo(i,mapSize)
 
         //horizontal lines
-        ctx.moveTo(32, i)
-        ctx.lineTo(worldMapSize, i)
+        ctx.moveTo(tileSize, i)
+        ctx.lineTo(mapSize, i)
 
         ctx.strokeStyle="#333333"
         ctx.stroke()
     }
     
-}
 
+    
+}
 
 

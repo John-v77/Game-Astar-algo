@@ -18,10 +18,16 @@
         and use for path finding Algos                  */
     worldMap = []
 
+    
+    // Path algo
+    let isClickedOnce = false
+    let startTrip
+    let targetTrip
 
 
 
 
+//******************   On Load   **********************************/
 const onload=()=>{
     console.log('page is loaded')
 
@@ -70,11 +76,14 @@ const onload=()=>{
     }
     
     createWorld()
+
+    // on mouse click
+    canvas.addEventListener("click",   userClick, false)
     
 }
 
 
-// Game Logic ****************************************************
+//**************************************************** Game Logic ****************************************************
 
 
 // #1
@@ -145,10 +154,16 @@ function drawSquare(colorNumber, x, y){
 
     switch(colorNumber){
         case 1:
-            colorZ = '#000000' //black
+            colorZ = '#000000' //black - obstacle
+            break;
+        case 3:
+            colorZ = '#00FF00' //green - start
+            break;
+        case 5:
+            colorZ = '#D3AF37' //gold - finish
             break;
         default:
-            colorZ = '#cccccc' //white - smoke
+            colorZ = '#cccccc' //light grey - open terrain
     }
 
     //chages the color of the fill
@@ -156,4 +171,35 @@ function drawSquare(colorNumber, x, y){
 
     //draw the rectangler
     ctx.fillRect(newX, newY, tileSize, tileSize)
+}
+
+
+
+//*********************** User Input *****************************
+
+function userClick(e){
+    
+    // console.log(e)
+
+
+    //             console.log(e.pageX, 'x')
+    //             console.log(e.pageY, 'y')
+
+    
+    // grab mouse coordinates
+    let x = e.pageX
+    let y = e.pageY
+
+    // adjust coordinates for to canvas only
+    x -= canvas.offsetLeft
+    y -= canvas.offsetTop
+
+    
+    // translate coordinates in tile position
+    x =  Math.floor(x/tileSize)
+    y =  Math.floor(y/tileSize)
+
+    console.log(x, y, 'worldCell')
+    // drawSquare(3,x,y)
+
 }

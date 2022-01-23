@@ -117,9 +117,10 @@ function createsMapList(numOfTiles){
             //polulates each list, 0=flat terrain, 1=impasable terrain
             val = createObstacles()
             worldMap[x][y] = val
-            drawSquare(val, x, y)
         }
     }
+
+    renderWorlMap()
 }
 
 // #3
@@ -136,11 +137,16 @@ function createObstacles(){
 
 // #4
 
-function renderWorlMap(colorNum, x, y){
+function renderWorlMap(){
 
     //check for edge cases
-    if(!colNum || !x || !y) return
+    if(worldMap.length === 0) return
 
+    for(let x=0; x<numTiles; x++){
+        for(let y=0; y<numTiles; y++){
+            drawSquare(worldMap[x][y], x, y)
+        }
+    }
 
 }
 
@@ -179,6 +185,13 @@ function drawSquare(colorNumber, x, y){
 
 function userClick(e){
     
+    // console.log(e)
+
+
+    //             console.log(e.pageX, 'x')
+    //             console.log(e.pageY, 'y')
+
+
     // grab mouse coordinates
     let x = e.pageX
     let y = e.pageY
@@ -192,6 +205,11 @@ function userClick(e){
     x =  Math.floor(x/tileSize) - 1
     y =  Math.floor(y/tileSize) - 1
 
+
+    console.log(x, y, 'worldCell')
+    // drawSquare(3,x,y)
+
+
     setTravelPoints(x,y)
 
     
@@ -201,23 +219,33 @@ function userClick(e){
 
 function setTravelPoints(x, y){
 
+    // console.log('initalizing' + 'setTravelPoints')
+
+    console.log('is valid:    ' + (isValidPoint(x,y)))
+
     if(!isValidPoint(x,y)) return
 
     isClickedOnce = !isClickedOnce
-
+    // console.log(isClickedOnce, 'isClickedOnce')
 
     if(isClickedOnce) {
         startTrip = [x,y]
         worldMap[x][y] = 3   // add the value of the starting point on the map
+        console.log('valueStart : ' + worldMap[x][y])
     }else{
         targetTrip = [x,y]  // add the value of the end point on the map
         worldMap[x][y] = 5
+        console.log('valueEnd : ' + worldMap[x][y])
         isClickedOnce = null  // resets the two click series
     }
 
+    renderWorlMap()
 }
 
 function isValidPoint(x,y){
+    console.log(worldMap)
+    console.log('initalizing ' + 'isValidPoint ' + x + "   " + y)
+    // console.log('initalizing' + 'worldMap[x][y]' + worldMap[x][y])
     
     if(worldMap[x][y] === 0) return true
     return false

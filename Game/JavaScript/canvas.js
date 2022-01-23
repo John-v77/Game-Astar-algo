@@ -21,8 +21,8 @@
     
     // Path algo
     let isClickedOnce = false
-    let startTrip
-    let targetTrip
+    let startPoint
+    let destinationPoint
 
 
 
@@ -223,20 +223,25 @@ function setTravelPoints(x, y){
 
     console.log('is valid:    ' + (isValidPoint(x,y)))
 
-    if(!isValidPoint(x,y)) return
+    if(!isValidPoint(x,y)) return           //if the point is an obstacle exit
 
     isClickedOnce = !isClickedOnce
-    // console.log(isClickedOnce, 'isClickedOnce')
+
+    //clear previous travel point
+    if(isClickedOnce && startPoint && destinationPoint){
+        worldMap[startPoint[0]][startPoint[1]] = 0
+        worldMap[destinationPoint[0]][destinationPoint[1]] = 0
+    }
 
     if(isClickedOnce) {
-        startTrip = [x,y]
+        startPoint = [x,y]
         worldMap[x][y] = 3   // add the value of the starting point on the map
         console.log('valueStart : ' + worldMap[x][y])
     }else{
-        targetTrip = [x,y]  // add the value of the end point on the map
+        destinationPoint = [x,y]  // add the value of the end point on the map
         worldMap[x][y] = 5
         console.log('valueEnd : ' + worldMap[x][y])
-        isClickedOnce = null  // resets the two click series
+        isClickedOnce = false  // resets the two click series
     }
 
     renderWorlMap()

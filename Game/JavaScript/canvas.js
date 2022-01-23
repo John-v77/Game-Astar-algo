@@ -179,13 +179,6 @@ function drawSquare(colorNumber, x, y){
 
 function userClick(e){
     
-    // console.log(e)
-
-
-    //             console.log(e.pageX, 'x')
-    //             console.log(e.pageY, 'y')
-
-    
     // grab mouse coordinates
     let x = e.pageX
     let y = e.pageY
@@ -196,10 +189,41 @@ function userClick(e){
 
     
     // translate coordinates in tile position
-    x =  Math.floor(x/tileSize)
-    y =  Math.floor(y/tileSize)
+    x =  Math.floor(x/tileSize) - 1
+    y =  Math.floor(y/tileSize) - 1
 
-    console.log(x, y, 'worldCell')
-    // drawSquare(3,x,y)
+    setTravelPoints(x,y)
+
+    
 
 }
+
+
+function setTravelPoints(x, y){
+
+    if(!isValidPoint(x,y)) return
+
+    isClickedOnce = !isClickedOnce
+
+
+    if(isClickedOnce) {
+        startTrip = [x,y]
+        worldMap[x][y] = 3   // add the value of the starting point on the map
+    }else{
+        targetTrip = [x,y]  // add the value of the end point on the map
+        worldMap[x][y] = 5
+        isClickedOnce = null  // resets the two click series
+    }
+
+}
+
+function isValidPoint(x,y){
+    
+    if(worldMap[x][y] === 0) return true
+    return false
+}
+
+
+// once click start  - set point and draw again -
+// once click 2 time - set end - create animation along the path - start animation
+

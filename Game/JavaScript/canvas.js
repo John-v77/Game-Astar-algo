@@ -183,6 +183,7 @@ function drawSquare(colorNumber, x, y){
 
 //*********************** User Input *****************************
 
+// #6
 function userClick(e){
     
     // console.log(e)
@@ -217,6 +218,7 @@ function userClick(e){
 }
 
 
+// #7
 function setTravelPoints(x, y){
 
     // console.log('initalizing' + 'setTravelPoints')
@@ -253,9 +255,13 @@ function setTravelPoints(x, y){
     let pathStart = { x: startPoint[0] , y: startPoint[1]}
     let pathEnd = { x: destinationPoint[0] , y: destinationPoint[1]}
     findPath(pathStart, pathEnd)
+
+    findNeighbours(startPoint[0], startPoint[1])
     }
 }
 
+
+// #8
 function isValidPoint(x,y){
 
     //guard clause
@@ -272,10 +278,12 @@ function isValidPoint(x,y){
 
 /*  *** The A-star Algorithm *** */
 
-// world is a 2d array
-// pointStart = [x,y]
+     /* world is a 2d array
+        pointStart = [x,y]    */
 
 // main Function for finding Path
+
+// #9
 function findPath(pathStart, pathEnd){
 
     console.log('finding path')
@@ -290,6 +298,8 @@ function findPath(pathStart, pathEnd){
     console.log("distanceFunction: ", distanceFunction)
 }
 
+
+// #10
 // function to calculate distance
 function ManhattanDistance(Point, Goal){
     //linear movement - no diagonals
@@ -300,4 +310,45 @@ function ManhattanDistance(Point, Goal){
     return res
 }
 
+
+// #11
+function findNeighbours(x,y){
+    let north = y-1
+    let south = y+1
+
+    let east = x+1
+    let west = x-1
+
+    let result = []
+
+    console.log('north: ', north,
+                'south: ', south,
+                'east: ', east,
+                'west: ', west
+
+    )
+
+
+    //North - check if out of boundries
+    if(north > -1 && isValidPoint(x,north)){
+        result.push({x:x, y:north})}
+    
+    //South
+    if(south < numTiles && isValidPoint(x,south)){
+        result.push({x:x, y:south})
+    }
+
+    //East
+    if(east < numTiles && isValidPoint(east, y)){
+        result.push({x:east, y:y})
+    }
+
+    //West
+    if(west > -1 && isValidPoint(west, y)){
+        result.push({x:west, y:y})
+    }
+
+    console.log('result: ', result)
+    return result
+}
 

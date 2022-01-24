@@ -245,13 +245,23 @@ function setTravelPoints(x, y){
     }
 
     renderWorlMap()
+
+        //guard clause
+    if(startPoint && destinationPoint) {
+    
+    //finding path
+    let pathStart = { x: startPoint[0] , y: startPoint[1]}
+    let pathEnd = { x: destinationPoint[0] , y: destinationPoint[1]}
+    findPath(pathStart, pathEnd)
+    }
 }
 
 function isValidPoint(x,y){
-    console.log(worldMap)
-    console.log('initalizing ' + 'isValidPoint ' + x + "   " + y)
-    // console.log('initalizing' + 'worldMap[x][y]' + worldMap[x][y])
-    
+
+    //guard clause
+    if(x > numTiles-1 || x < 0) return false
+    if(y > numTiles-1 || y < 0) return false
+
     if(worldMap[x][y] === 0) return true
     return false
 }
@@ -259,4 +269,35 @@ function isValidPoint(x,y){
 
 // once click start  - set point and draw again -
 // once click 2 time - set end - create animation along the path - start animation
+
+/*  *** The A-star Algorithm *** */
+
+// world is a 2d array
+// pointStart = [x,y]
+
+// main Function for finding Path
+function findPath(pathStart, pathEnd){
+
+    console.log('finding path')
+    // in case have rough terrain, but not blocked
+    let maxValofWalkableTile = 0
+
+    let worldSize = numTiles^2
+
+    //more path finding algorithms will be added later 
+    let distanceFunction = ManhattanDistance(pathStart, pathEnd);
+
+    console.log("distanceFunction: ", distanceFunction)
+}
+
+// function to calculate distance
+function ManhattanDistance(Point, Goal){
+    //linear movement - no diagonals
+    let res =  Math.abs(Point.x - Goal.x) + Math.abs(Point.y - Goal.y)
+
+    console.log(res)
+
+    return res
+}
+
 

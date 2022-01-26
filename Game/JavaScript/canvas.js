@@ -1,17 +1,16 @@
 //global variable for the file
 
     //canvas
-    let canvas
-    let ctx
+    let canvas, ctx
 
     //terain
     let terrain
 
 
     //map 
-    let numTiles = 16
+    let numTiles = 10
         // size in px
-    let tileSize = 32
+    let tileSize = 68
     let mapSize = tileSize * numTiles
 
     /*  world map - list to be use for generating obstacles 
@@ -24,6 +23,9 @@
     let startPoint
     let destinationPoint
 
+    let pathStart = [numTiles, numTiles]
+    let pathEnd = [0,0]
+    let currentPath = []
 
 
 
@@ -144,7 +146,7 @@ function renderWorlMap(){
 
     for(let x=0; x<numTiles; x++){
         for(let y=0; y<numTiles; y++){
-            drawSquare(worldMap[x][y], x, y)
+            drawPicture(worldMap[x][y], x, y)
         }
     }
 
@@ -178,6 +180,42 @@ function drawSquare(colorNumber, x, y){
     //draw the rectangler
     ctx.fillRect(newX, newY, tileSize, tileSize)
 }
+
+function drawPicture(tileNumber, x, y){
+    
+    let picTile = new Image
+    picTile.src = 'https://livedoor.blogimg.jp/kamekameboy/imgs/9/d/9d34d6fc.png'
+    let newX = (x+1)*tileSize
+    let newY = (y+1)*tileSize
+
+    let cropX
+    let cropY
+
+    switch(tileNumber){
+        case 1:
+            cropX = 945
+            cropY = 469
+            break;
+        case 3:
+            cropX = 605
+            cropY = 309
+            break;
+        case 5:
+            cropX = 790
+            cropY = 205
+            break;
+        default:
+            cropX = 808
+            cropY = 471
+    }
+    
+    picTile.onload = function(){
+
+        ctx.drawImage(picTile, cropX, cropY, tileSize, tileSize, newX, newY, tileSize, tileSize)
+    }
+
+}
+
 
 
 
@@ -257,6 +295,10 @@ function setTravelPoints(x, y){
     findPath(pathStart, pathEnd)
 
     findNeighbours(startPoint[0], startPoint[1])
+
+    // calculatePath(pathStart, pathEnd)
+    // aStarAlgo(pathStart, pathEnd)
+    
     }
 }
 
@@ -313,11 +355,11 @@ function ManhattanDistance(Point, Goal){
 
 // #11
 function findNeighbours(x,y){
-    let north = y-1
-    let south = y+1
+    let north = +y-1
+    let south = +y+1
 
-    let east = x+1
-    let west = x-1
+    let east = +x+1
+    let west = +x-1
 
     let result = []
 
@@ -350,5 +392,31 @@ function findNeighbours(x,y){
 
     console.log('result: ', result)
     return result
+}
+
+
+// #12
+function Node(Parent, Point){
+
+    let newNode = {
+        // pointer to another Node object
+        Parent:Parent,
+        
+        //array index of this Node in the world linear array
+        value:Point.x + (Point.y * numTiles),
+        
+        // the location coordinates of this Node
+        x:Point.x,
+        y:Point.y,
+        
+        // the heuristic estimated cost
+        // of an entire path using this node
+        f:0,
+        // the distanceFunction cost to get 
+        // from the starting point to this node
+        g:0
+    }
+
+    return newNode
 }
 

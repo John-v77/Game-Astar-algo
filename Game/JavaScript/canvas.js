@@ -146,7 +146,7 @@ function renderWorlMap(){
 
     for(let x=0; x<numTiles; x++){
         for(let y=0; y<numTiles; y++){
-            drawPicture(worldMap[x][y], x, y)
+            drawSquare(worldMap[x][y], x, y)
         }
     }
 
@@ -169,6 +169,9 @@ function drawSquare(colorNumber, x, y){
             break;
         case 5:
             colorZ = '#D3AF37' //gold - finish
+            break;
+        case 9:
+            colorZ = '#F0F0F0' //visited
             break;
         default:
             colorZ = '#cccccc' //light grey - open terrain
@@ -198,7 +201,7 @@ function drawPicture(tileNumber, x, y){
             break;
         case 3:
             cropX = 605
-            cropY = 309
+            cropY = 310
             break;
         case 5:
             cropX = 790
@@ -296,8 +299,12 @@ function setTravelPoints(x, y){
 
     findNeighbours(startPoint[0], startPoint[1])
 
-    // calculatePath(pathStart, pathEnd)
+
+    let pathZ = calculatePath(pathStart, pathEnd)
+    console.log('final***********', pathZ)
     // aStarAlgo(pathStart, pathEnd)
+
+    pathZ.forEach(el => { drawSquare(9, el[0], el[1]) }) 
     
     }
 }
@@ -310,7 +317,7 @@ function isValidPoint(x,y){
     if(x > numTiles-1 || x < 0) return false
     if(y > numTiles-1 || y < 0) return false
 
-    if(worldMap[x][y] === 0) return true
+    if(worldMap[x][y] === 0 || worldMap[x][y] === 5) return true
     return false
 }
 
@@ -398,12 +405,15 @@ function findNeighbours(x,y){
 // #12
 function Node(Parent, Point){
 
+    console.log("parent :",  Parent)
+    console.log("Point :",  Point)
+
     let newNode = {
         // pointer to another Node object
         Parent:Parent,
         
         //array index of this Node in the world linear array
-        value:Point.x + (Point.y * numTiles),
+        valueZ:Point.x + (Point.y * numTiles),
         
         // the location coordinates of this Node
         x:Point.x,
@@ -420,3 +430,104 @@ function Node(Parent, Point){
     return newNode
 }
 
+
+
+// #13
+function calculatePath(pathStart, pathEnd){
+
+    // creates Nodes from the Start and End x,y coordinates
+
+    let xPathStart = Node(null, {x:pathStart.x, y: pathStart.y})
+    let xPathEnd = Node(null, {x:pathEnd.x, y: pathEnd.y})
+
+    // create an array that will map all the vizited points
+    let AStar = new Array(numTiles)
+    
+    // list of currently open Nodes
+    let Open = [xPathStart]
+
+    //list of closed Nodes
+    let Closed = []
+
+    // list of the final output array
+    let finalResult = []
+
+    // reference to a Node nearby
+    let nextNeighbours
+
+    // reference to a Node - that is considered now
+    let currentNode
+
+    // reference to a Node - that starts the path in question
+    let myPath
+
+    // temp integers variables used in calculations
+    let length, max, min, i, j;
+
+
+    //iterate throught the open list until none are left
+    // loop
+    length = Open.length
+
+    while( length = Open.length){
+        max = numTiles
+        min = -1
+
+        for( i=0; i<length; i++){
+            if(Open[i].f < max){
+                max = Open[i].f
+                min = i
+            }
+        }
+
+
+        //grab the next node and remove it form Open array
+        currentNode = Open.splice(min,1)[0]
+
+        // it it the destination node?
+        if(currentNode.valueZ === xPathEnd.valueZ){
+            console.log('destination found')
+
+            myPath = Closed[Closed.push(currentNode) - 1]
+            do{
+                finalResult.push([myPath.x, myPath.y])
+            }while (myPath = myPath.Parent) 
+            
+            // clear the working arrays
+            AStar = Closed = Open = []
+            // we want to return start to finish
+
+            finalResult.reverse()
+        }else{
+
+            //find the next walkable tiles
+            nextNeighbours = findNeighbours(currentNode.x, currentNode.y)
+
+            // test each one that hasn't been tried already
+            nextNeighbours.forEach(el =>{
+                myPath = Node(currentNode, el)
+                if(!AStar[myPath.valueZ]){
+
+                    //estimated cost of this particular route so far
+                    myPath.g = currentNode.g + ManhattanDistance(el, currentNode)
+
+                    //estimated cost of entire guessed route to the destination
+                    myPath.f = myPath.g + ManhattanDistance(el, xPathEnd)
+
+                    //remember this new path for testing above
+                    Open.push(myPath)
+
+
+                    //mark this node in the world graph as visited
+                    AStar[myPath.valueZ] = true
+
+                    console.log(AStar)
+                }
+            })
+            // remember this route as having no more untested options
+            
+        }
+
+    } // keep iterating until the Open list is empty
+    return finalResult
+}

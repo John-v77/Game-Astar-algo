@@ -31,12 +31,12 @@
 
 //******************   On Load   **********************************/
 const onload=()=>{
-    console.log('page is loaded')
+    
 
 
     //get canvas
     canvas = document.querySelector('canvas')
-    console.log(canvas, "canvas")
+    
 
     canvas.width = 800
     canvas.height = 800
@@ -90,11 +90,7 @@ const onload=()=>{
 
 // #1
 function createWorld(){
-
-    console.log('creating world')
-
     createsMapList(numTiles)
-    
     console.log(worldMap)
 }
 
@@ -103,8 +99,6 @@ function createWorld(){
 
 // #2
 function createsMapList(numOfTiles){
-
-    console.log('creating createsMapList')
 
     //creates a 2d matrix that hold information about every tile
 
@@ -157,8 +151,8 @@ function renderWorlMap(){
 function drawSquare(colorNumber, x, y){
 
     let colorZ
-    let newX = (x+1)*tileSize
-    let newY = (y+1)*tileSize
+    let newX = (y)*tileSize
+    let newY = (x)*tileSize
 
     switch(colorNumber){
         case 1:
@@ -182,6 +176,9 @@ function drawSquare(colorNumber, x, y){
 
     //draw the rectangler
     ctx.fillRect(newX, newY, tileSize, tileSize)
+    ctx.font = "10px Arial";
+    ctx.fillStyle = "red"
+    ctx.fillText(`${x} x ${y}`, newX+(tileSize-40), newY+(tileSize/1.5));
 }
 
 function drawPicture(tileNumber, x, y){
@@ -226,17 +223,14 @@ function drawPicture(tileNumber, x, y){
 
 // #6
 function userClick(e){
-    
-    // console.log(e)
 
-
-    //             console.log(e.pageX, 'x')
-    //             console.log(e.pageY, 'y')
-
+   let x, y
 
     // grab mouse coordinates
-    let x = e.pageX
-    let y = e.pageY
+    if(e.pageX != undefined && e.pageY != undefined){
+    x = e.pageX
+    y = e.pageY
+    }
 
     // adjust coordinates for to canvas only
     x -= canvas.offsetLeft
@@ -244,53 +238,40 @@ function userClick(e){
 
     
     // translate coordinates in tile position
-    x =  Math.floor(x/tileSize) - 1
-    y =  Math.floor(y/tileSize) - 1
+    x =  Math.floor(x/tileSize)
+    y =  Math.floor(y/tileSize)
 
-
-    console.log(x, y, 'worldCell')
     // drawSquare(3,x,y)
 
-
-    setTravelPoints(x,y)
-
-    
-
+    setTravelPoints(y,x)
 }
 
 
 // #7
 function setTravelPoints(x, y){
 
-    // console.log('initalizing' + 'setTravelPoints')
-
-    console.log('is valid:    ' + (isValidPoint(x,y)))
-
     if(!isValidPoint(x,y)) return           //if the point is an obstacle exit
 
-    isClickedOnce = !isClickedOnce
-
     //clear previous travel point
-    if(isClickedOnce && startPoint && destinationPoint){
+    if(!isClickedOnce && startPoint && destinationPoint){
         worldMap[startPoint[0]][startPoint[1]] = 0
         worldMap[destinationPoint[0]][destinationPoint[1]] = 0
     }
 
-    if(isClickedOnce) {
+    if(!isClickedOnce) {
         startPoint = [x,y]
         worldMap[x][y] = 3   // add the value of the starting point on the map
-        console.log('valueStart : ' + worldMap[x][y])
+        isClickedOnce = !isClickedOnce
     }else{
         destinationPoint = [x,y]  // add the value of the end point on the map
         worldMap[x][y] = 5
-        console.log('valueEnd : ' + worldMap[x][y])
-        isClickedOnce = false  // resets the two click series
+        isClickedOnce = !isClickedOnce      // resets the two click series
     }
 
     renderWorlMap()
 
-        //guard clause
-    if(startPoint && destinationPoint) {
+    // guard clause
+    if(startPoint && destinationPoint && !isClickedOnce) {
     
     //finding path
     let pathStart = { x: startPoint[0] , y: startPoint[1]}
@@ -301,12 +282,14 @@ function setTravelPoints(x, y){
 
 
     let pathZ = calculatePath(pathStart, pathEnd)
-    console.log('final***********', pathZ)
     // aStarAlgo(pathStart, pathEnd)
 
-    pathZ.forEach(el => { drawSquare(9, el[0], el[1]) }) 
+    for(let i=1; i<pathZ.length-1; i++){
+        drawSquare(9, pathZ[i][0], pathZ[i][1])
+    }
     
     }
+    console.log(worldMap)
 }
 
 
@@ -335,7 +318,6 @@ function isValidPoint(x,y){
 // #9
 function findPath(pathStart, pathEnd){
 
-    console.log('finding path')
     // in case have rough terrain, but not blocked
     let maxValofWalkableTile = 0
 
@@ -344,7 +326,6 @@ function findPath(pathStart, pathEnd){
     //more path finding algorithms will be added later 
     let distanceFunction = ManhattanDistance(pathStart, pathEnd);
 
-    console.log("distanceFunction: ", distanceFunction)
 }
 
 
@@ -354,50 +335,41 @@ function ManhattanDistance(Point, Goal){
     //linear movement - no diagonals
     let res =  Math.abs(Point.x - Goal.x) + Math.abs(Point.y - Goal.y)
 
-    console.log(res)
-
     return res
 }
 
 
 // #11
 function findNeighbours(x,y){
-    let north = +y-1
-    let south = +y+1
+    let north = {x:x-1, y:y}
+    let south = {x:x+1, y:y}
 
-    let east = +x+1
-    let west = +x-1
+    let east =  {x:x, y:y+1}
+    let west =  {x:x, y:y-1}
 
     let result = []
 
-    console.log('north: ', north,
-                'south: ', south,
-                'east: ', east,
-                'west: ', west
-
-    )
-
 
     //North - check if out of boundries
-    if(north > -1 && isValidPoint(x,north)){
-        result.push({x:x, y:north})}
+    if(north.x > -1 && isValidPoint(north.x, north.y)){
+        result.push(north)}
     
-    //South
-    if(south < numTiles && isValidPoint(x,south)){
-        result.push({x:x, y:south})
+    //East
+    if(east.y < numTiles && isValidPoint(east.x, east.y)){
+        result.push(east)
     }
 
-    //East
-    if(east < numTiles && isValidPoint(east, y)){
-        result.push({x:east, y:y})
+    
+    //South
+    if(south.x < numTiles && isValidPoint(south.x, south.y)){
+        result.push(south)
     }
 
     //West
-    if(west > -1 && isValidPoint(west, y)){
-        result.push({x:west, y:y})
+    if(west.y > -1 && isValidPoint(west.x, west.y)){
+        result.push(west)
     }
 
-    console.log('result: ', result)
     return result
 }
 
@@ -405,8 +377,6 @@ function findNeighbours(x,y){
 // #12
 function Node(Parent, Point){
 
-    console.log("parent :",  Parent)
-    console.log("Point :",  Point)
 
     let newNode = {
         // pointer to another Node object
@@ -467,28 +437,18 @@ function calculatePath(pathStart, pathEnd){
 
     //iterate throught the open list until none are left
     // loop
-    length = Open.length
-
     while( length = Open.length){
         max = numTiles
         min = -1
 
-        for( i=0; i<length; i++){
-            if(Open[i].f < max){
-                max = Open[i].f
-                min = i
-            }
-        }
-
-
         //grab the next node and remove it form Open array
         currentNode = Open.splice(min,1)[0]
+        
 
         // it it the destination node?
         if(currentNode.valueZ === xPathEnd.valueZ){
-            console.log('destination found')
 
-            myPath = Closed[Closed.push(currentNode) - 1]
+            myPath = Closed[Closed.push(currentNode) - 1]   // adjust for 0 index
             do{
                 finalResult.push([myPath.x, myPath.y])
             }while (myPath = myPath.Parent) 
@@ -514,14 +474,19 @@ function calculatePath(pathStart, pathEnd){
                     //estimated cost of entire guessed route to the destination
                     myPath.f = myPath.g + ManhattanDistance(el, xPathEnd)
 
+
+                    if(myPath.f < max){
+                        max = myPath.f
+                        min = i
+                    }
                     //remember this new path for testing above
                     Open.push(myPath)
 
 
+
+
                     //mark this node in the world graph as visited
                     AStar[myPath.valueZ] = true
-
-                    console.log(AStar)
                 }
             })
             // remember this route as having no more untested options

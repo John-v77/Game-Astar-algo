@@ -10,12 +10,15 @@
     //map 
     let numTiles = 10
         // size in px
-    let tileSize = 68
+    let backcgroundTileSize = 68
+    let tileSize = backcgroundTileSize/2
+
     let mapSize = tileSize * numTiles
 
     /*  world map - list to be use for generating obstacles 
         and use for path finding Algos                  */
     worldMap = []
+    travelMap = []  //x2 bigger than world map same obstacles
 
     
     // Path algo
@@ -90,6 +93,7 @@ const onload=()=>{
 
 // #1
 function createWorld(){
+    initiateTravelMap(numTiles)
     createsMapList(numTiles)
     console.log(worldMap)
 }
@@ -100,6 +104,8 @@ function createWorld(){
 // #2
 function createsMapList(numOfTiles){
 
+
+    // initiateTravelMap(numOfTiles)
     //creates a 2d matrix that hold information about every tile
 
     let val
@@ -113,10 +119,42 @@ function createsMapList(numOfTiles){
             //polulates each list, 0=flat terrain, 1=impasable terrain
             val = createObstacles()
             worldMap[x][y] = val
+
+            createTravelMap(x,y,val)  // translate this values to a bigger map - for calculating travel path
         }
     }
 
+    console.log(worldMap)
+
+    console.log(travelMap)
     renderWorlMap()
+    
+}
+
+
+function initiateTravelMap(numOfTiles){
+
+    let len = numOfTiles * 2  // double the size of original map
+    
+    for(let x=0; x<len; x++){
+        travelMap[x] = []
+        for(let y=0; y<len; y++){
+            travelMap[x][y] = null
+        }
+    }
+    console.log(travelMap, "travelMap")
+}
+
+
+
+function createTravelMap(x,y,val){
+
+    let newX = x*2
+    let newY = y*2
+    travelMap[newX][newY] = val
+    travelMap[newX+1][newY] = val
+    travelMap[newX][newY+1] = val
+    travelMap[newX+1][newY+1] = val
 }
 
 // #3
@@ -138,9 +176,9 @@ function renderWorlMap(){
     //check for edge cases
     if(worldMap.length === 0) return
 
-    for(let x=0; x<numTiles; x++){
-        for(let y=0; y<numTiles; y++){
-            drawSquare(worldMap[x][y], x, y)
+    for(let x=0; x < (numTiles*2); x++){
+        for(let y=0; y < (numTiles*2); y++){
+            drawSquare(travelMap[x][y], x, y)
         }
     }
 
@@ -178,15 +216,15 @@ function drawSquare(colorNumber, x, y){
     ctx.fillRect(newX, newY, tileSize, tileSize)
     ctx.font = "10px Arial";
     ctx.fillStyle = "red"
-    ctx.fillText(`${x} x ${y}`, newX+(tileSize-40), newY+(tileSize/1.5));
+    ctx.fillText(`${x} x ${y}`, newX+(tileSize-29), newY+(tileSize/1.5));
 }
 
 function drawPicture(tileNumber, x, y){
     
     let picTile = new Image
     picTile.src = 'https://livedoor.blogimg.jp/kamekameboy/imgs/9/d/9d34d6fc.png'
-    let newX = (x+1)*tileSize
-    let newY = (y+1)*tileSize
+    let newX = (x+1)*backcgroundTileSize
+    let newY = (y+1)*backcgroundTileSize
 
     let cropX
     let cropY
@@ -211,7 +249,7 @@ function drawPicture(tileNumber, x, y){
     
     picTile.onload = function(){
 
-        ctx.drawImage(picTile, cropX, cropY, tileSize, tileSize, newX, newY, tileSize, tileSize)
+        ctx.drawImage(picTile, cropX, cropY, backcgroundTileSize, backcgroundTileSize, newX, newY, backcgroundTileSize, backcgroundTileSize)
     }
 
 }

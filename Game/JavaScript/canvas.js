@@ -411,13 +411,13 @@ function calculatePath(pathStart, pathEnd){
     let xPathEnd = Node(null, {x:pathEnd.x, y: pathEnd.y})
 
     // create an array that will map all the vizited points
-    let AStar = new Array(numTiles)
+    let AStar = new Array(mapSize)
     
     // list of currently open Nodes
     let Open = [xPathStart]
 
-    //list of closed Nodes
-    let Closed = []
+    //lis of closed Nodes
+    let closedNodes = []
 
     // list of the final output array
     let finalResult = []
@@ -432,29 +432,38 @@ function calculatePath(pathStart, pathEnd){
     let myPath
 
     // temp integers variables used in calculations
-    let length, max, min, i, j;
+    let length, max, idexZ, i, j;
 
 
     //iterate throught the open list until none are left
     // loop
-    while( length = Open.length){
-        max = numTiles
-        min = -1
+    while( length = Open.length){  // if lenght is 0 - is considered false as well
+        // reset to maximum cost of travel to "infinity" -- or values big enough to be ouside of boundries
+        max = mapSize
+        indeZ = -1
+
+        // check in the open list for the node that has the smallest - estimate value to destination '.f'
+        for(let i=0; i< length; i++){
+            if(Open[i].f < max){
+                max = Open[i].f    // replace value of max distance with the smallest one in the list
+                indeZ = i     // remember the index for splice
+            }
+        }
 
         //grab the next node and remove it form Open array
-        currentNode = Open.splice(min,1)[0]
+        currentNode = Open.splice(indeZ,1)[0]
         
 
         // it it the destination node?
         if(currentNode.valueZ === xPathEnd.valueZ){
 
-            myPath = Closed[Closed.push(currentNode) - 1]   // adjust for 0 index
+               // adjust for 0 index
             do{
                 finalResult.push([myPath.x, myPath.y])
-            }while (myPath = myPath.Parent) 
+            }while (myPath = myPath.Parent)
             
             // clear the working arrays
-            AStar = Closed = Open = []
+            AStr = Closed = Open = []
             // we want to return start to finish
 
             finalResult.reverse()
@@ -474,20 +483,13 @@ function calculatePath(pathStart, pathEnd){
                     //estimated cost of entire guessed route to the destination
                     myPath.f = myPath.g + ManhattanDistance(el, xPathEnd)
 
-
-                    if(myPath.f < max){
-                        max = myPath.f
-                        min = i
-                    }
                     //remember this new path for testing above
                     Open.push(myPath)
-
-
-
+                    }
 
                     //mark this node in the world graph as visited
                     AStar[myPath.valueZ] = true
-                }
+    
             })
             // remember this route as having no more untested options
             

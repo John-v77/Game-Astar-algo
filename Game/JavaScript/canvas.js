@@ -9,11 +9,12 @@
 
     //map 
     let numTiles = 10
+    let pathNumTiles = numTiles*2
         // size in px
     let backcgroundTileSize = 68
     let tileSize = backcgroundTileSize/2
 
-    let mapSize = tileSize * numTiles
+    let mapSize = pathNumTiles * pathNumTiles
 
     /*  world map - list to be use for generating obstacles 
         and use for path finding Algos                  */
@@ -174,7 +175,7 @@ function createObstacles(){
 function renderWorlMap(){
 
     //check for edge cases
-    if(worldMap.length === 0) return
+    if(travelMap.length === 0) return
 
     for(let x=0; x < (numTiles*2); x++){
         for(let y=0; y < (numTiles*2); y++){
@@ -201,6 +202,9 @@ function drawSquare(colorNumber, x, y){
             break;
         case 5:
             colorZ = '#D3AF37' //gold - finish
+            break;
+        case 7:
+            colorZ = '#0000FF' //final path
             break;
         case 9:
             colorZ = '#F0F0F0' //visited
@@ -279,9 +283,11 @@ function userClick(e){
     x =  Math.floor(x/tileSize)
     y =  Math.floor(y/tileSize)
 
+
+    console.log(x,'| |', y)
     // drawSquare(3,x,y)
 
-    setTravelPoints(y,x)
+    setTravelPoints(y, x)    // inverse x,y for to adjust for vertical orientation
 }
 
 
@@ -292,21 +298,21 @@ function setTravelPoints(x, y){
 
     //clear previous travel point
     if(!isClickedOnce && startPoint && destinationPoint){
-        worldMap[startPoint[0]][startPoint[1]] = 0
-        worldMap[destinationPoint[0]][destinationPoint[1]] = 0
+        travelMap[startPoint[0]][startPoint[1]] = 0
+        travelMap[destinationPoint[0]][destinationPoint[1]] = 0
     }
 
     if(!isClickedOnce) {
         startPoint = [x,y]
-        worldMap[x][y] = 3   // add the value of the starting point on the map
+        travelMap[x][y] = 3   // add the value of the starting point on the map
         isClickedOnce = !isClickedOnce
     }else{
         destinationPoint = [x,y]  // add the value of the end point on the map
-        worldMap[x][y] = 5
+        travelMap[x][y] = 5
         isClickedOnce = !isClickedOnce      // resets the two click series
     }
 
-    renderWorlMap()
+    renderWorlMap()  // the whole map need to be redrawn to clear previous points
 
     // guard clause
     if(startPoint && destinationPoint && !isClickedOnce) {
@@ -314,16 +320,13 @@ function setTravelPoints(x, y){
     //finding path
     let pathStart = { x: startPoint[0] , y: startPoint[1]}
     let pathEnd = { x: destinationPoint[0] , y: destinationPoint[1]}
-    findPath(pathStart, pathEnd)
 
-    findNeighbours(startPoint[0], startPoint[1])
-
-
-    let pathZ = calculatePath(pathStart, pathEnd)
+    let pathZ = findPath(pathStart, pathEnd)
     // aStarAlgo(pathStart, pathEnd)
 
+    console.log(pathZ, 'pathZ')
     for(let i=1; i<pathZ.length-1; i++){
-        drawSquare(9, pathZ[i][0], pathZ[i][1])
+        drawSquare(7, pathZ[i][0], pathZ[i][1])
     }
     
     }
@@ -335,16 +338,12 @@ function setTravelPoints(x, y){
 function isValidPoint(x,y){
 
     //guard clause
-    if(x > numTiles-1 || x < 0) return false
-    if(y > numTiles-1 || y < 0) return false
+    if(x > pathNumTiles-1 || x < 0) return false
+    if(y > pathNumTiles-1 || y < 0) return false
 
-    if(worldMap[x][y] === 0 || worldMap[x][y] === 5) return true
+    if(travelMap[x][y] === 0 || travelMap[x][y] === 5) return true
     return false
 }
-
-
-// once click start  - set point and draw again -
-// once click 2 time - set end - create animation along the path - start animation
 
 /*  *** The A-star Algorithm *** */
 
@@ -354,17 +353,6 @@ function isValidPoint(x,y){
 // main Function for finding Path
 
 // #9
-function findPath(pathStart, pathEnd){
-
-    // in case have rough terrain, but not blocked
-    let maxValofWalkableTile = 0
-
-    let worldSize = numTiles^2
-
-    //more path finding algorithms will be added later 
-    let distanceFunction = ManhattanDistance(pathStart, pathEnd);
-
-}
 
 
 // #10
@@ -393,13 +381,13 @@ function findNeighbours(x,y){
         result.push(north)}
     
     //East
-    if(east.y < numTiles && isValidPoint(east.x, east.y)){
+    if(east.y < pathNumTiles && isValidPoint(east.x, east.y)){
         result.push(east)
     }
 
     
     //South
-    if(south.x < numTiles && isValidPoint(south.x, south.y)){
+    if(south.x < pathNumTiles && isValidPoint(south.x, south.y)){
         result.push(south)
     }
 
@@ -421,7 +409,7 @@ function Node(Parent, Point){
         Parent:Parent,
         
         //array index of this Node in the world linear array
-        valueZ:Point.x + (Point.y * numTiles),
+        valueZ:Point.x + (Point.y * pathNumTiles),
         
         // the location coordinates of this Node
         x:Point.x,
@@ -441,7 +429,7 @@ function Node(Parent, Point){
 
 
 // #13
-function calculatePath(pathStart, pathEnd){
+function findPath(pathStart, pathEnd){
 
     // creates Nodes from the Start and End x,y coordinates
 
@@ -490,8 +478,10 @@ function calculatePath(pathStart, pathEnd){
 
         //grab the next node and remove it form Open array
         currentNode = Open.splice(indeZ,1)[0]
-        
 
+        if(!xPathStart || !xPathEnd){
+        drawSquare(9, currentNode.x, currentNode.y)
+        }
         // it it the destination node?
         if(currentNode.valueZ === xPathEnd.valueZ){
 
@@ -501,7 +491,7 @@ function calculatePath(pathStart, pathEnd){
             }while (myPath = myPath.Parent)
             
             // clear the working arrays
-            AStr = Closed = Open = []
+            AStar = Closed = Open = []
             // we want to return start to finish
 
             finalResult.reverse()

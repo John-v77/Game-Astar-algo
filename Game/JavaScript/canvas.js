@@ -3,8 +3,14 @@
     //canvas
     let canvas, ctx
 
-    //terain
-    let terrain
+
+    //sprites
+        let terrain
+        let Hero
+        let Crystal
+        let PathOfLight
+        let Portal
+        
 
 
     //map 
@@ -18,8 +24,8 @@
 
     /*  world map - list to be use for generating obstacles 
         and use for path finding Algos                  */
-    worldMap = []
-    travelMap = []  //x2 bigger than world map same obstacles
+    let worldMap = []
+    let travelMap = []  //x2 bigger than world map same obstacles
 
     
     // Path algo
@@ -34,7 +40,7 @@
 
 
 //******************   On Load   **********************************/
-const onload=()=>{
+window.onload=()=>{
     
 
 
@@ -49,44 +55,151 @@ const onload=()=>{
     ctx = canvas.getContext("2d")
     ctx.fillStyle="F0F0F0"
 
+   
 
-    //draw bolder tile
-    // let img1 = new Image()
-    // img1.src = '../Images/bolder-tile.png'
-    // img1.onload = function(){
-    //     ctx.drawImage(img1, 0, 0)
-    // }
-
-    //draw grass tile
-    // let img2 = new Image()
-    // img2.src = 'https://64.media.tumblr.com/5310eb96570ee4e51acae3ae0f57fd2e/9e54f617e5091267-f4/s540x810/cac009e7c086af567dc76a7690b8c4731d3b70d9.png'
-    // img2.onload = function(){
-    //     ctx.drawImage(img2, 32, 32)
-    // }
-
-
-    //draw grid
-
-    for(let i=tileSize; i<=mapSize; i+=tileSize){
-        
-        //vertical lines
-        ctx.moveTo(i, tileSize)
-        ctx.lineTo(i,mapSize)
-
-        //horizontal lines
-        ctx.moveTo(tileSize, i)
-        ctx.lineTo(mapSize, i)
-
-        ctx.strokeStyle="#333333"
-        ctx.stroke()
-    }
-    
-    createWorld()
-
+    // createWorld() executes after the images are loaded
     // on mouse click
     canvas.addEventListener("click",   userClick, false)
     
+
+
+
+
+
+    const ListofLinks ={
+        grass: {img:'https://livedoor.blogimg.jp/kamekameboy/imgs/9/d/9d34d6fc.png',
+                cropX:808,
+                cropY:471,
+                w:68,
+                h:68},
+
+        trees: {img: 'https://livedoor.blogimg.jp/kamekameboy/imgs/9/d/9d34d6fc.png',
+                cropX:945,
+                cropY:469,
+                w:68,
+                h:68},
+        
+        hero:  {img: 'https://www.pngfind.com/pngs/m/685-6856402_transparent-ness-sprite-png-mega-man-x4-x.png',
+                cropX:253,
+                cropY:35,
+                w:60,
+                h:82},
+                
+        hero2: {img:'https://www.pngfind.com/pngs/m/339-3391874_megaman-clipart-sprite-megaman-powered-up-hd-png.png',
+                cropX:202,
+                cropY:47,
+                w:102,
+                h:139},
+
+        pathOfLight: {img:'https://toppng.com/public/uploads/thumbnail/glowing-ball-of-light-115495310350d5n2twaon.png',
+                cropX:0,
+                cropY:0,
+                w:190,
+                h:190},
+
+        powerUpPurple: {img:'https://e7.pngegg.com/pngimages/702/519/png-clipart-light-purple-ball-google-s-energy-ball-effects-purple-lightning-game-effect-thumbnail.png',
+                cropX:50,
+                cropY:50,
+                w:240,
+                h:240},
+
+        powerUpRed: {img:'https://www.pngkit.com/png/detail/188-1886210_ball-of-light-png-light-effects-png.png',
+                cropX:230,
+                cropY:50,
+                w:350,
+                h:350},
+
+        crystalsPYO: {img:'https://e7.pngegg.com/pngimages/324/441/png-clipart-sphere-euclidean-ball-light-effect-element-glass-lights.png',
+                cropX:320,
+                cropY:25,
+                w:260,
+                h:260},
+
+
+
+    }
+
+
+    loadImages(ListofLinks)
+
 }
+    
+// preload images one by one
+function loadImages (ListofLinks){
+
+
+
+    console.log(ListofLinks)
+
+    terrain = new Image
+    Hero = new Image
+    Crystal = new Image
+    PathOfLight = new Image
+    Portal = new Image
+
+    terrain.src = ListofLinks.grass.img
+    terrain.onload =()=>{console.log('terrain loaded')}
+
+    Hero.src = ListofLinks.hero.img
+    Hero.onload =()=>{console.log('terrain Hero')}
+
+    Crystal.src = ListofLinks.crystalsPYO.img
+    Crystal.onload =()=>{console.log('terrain Crystal')}
+
+    PathOfLight.src = ListofLinks.pathOfLight.img
+    PathOfLight.onload =()=>{console.log('terrain PathOfLight')}
+    
+    Portal.src = ListofLinks.powerUpPurple.img
+    Portal.onload =()=>{console.log('terrain Portal')}
+
+    createWorld()
+}
+
+
+
+
+/////**************************************************** plan ****************************************************
+/*
+    - use picture for here - create function do draw hero
+    - use picture for goal
+    - use light for path
+
+    step 2
+
+    - move starting poin along the way of the path -- 0.5 sec delay
+    - once it reaches the destination -- redraw - disapear goal. 
+    
+    step 3
+
+    - add shotting powers -- 
+            - when pressing - right click - shoot ball to location -- choose a ball without orientation
+    step 4
+
+    - add rolling boulders --
+        sprite that moves along the axes - 1 sec delay
+
+    step 5
+
+    - add diferent power balls 
+        -- change color of shooting sprites
+    
+    step 6
+
+    - add portal function 
+            -- close the map
+            -- redraw another one
+
+    step 7 
+        - add interface
+        - explain the game
+    
+    step 8 change it to modules
+*/
+
+
+
+
+
 
 
 //**************************************************** Game Logic ****************************************************
@@ -177,9 +290,9 @@ function renderWorlMap(){
     //check for edge cases
     if(travelMap.length === 0) return
 
-    for(let x=0; x < (numTiles*2); x++){
-        for(let y=0; y < (numTiles*2); y++){
-            drawSquare(travelMap[x][y], x, y)
+    for(let x=0; x < (numTiles); x++){
+        for(let y=0; y < (numTiles); y++){
+            drawPicture(worldMap[x][y], x, y)
         }
     }
 
@@ -226,29 +339,34 @@ function drawSquare(colorNumber, x, y){
 function drawPicture(tileNumber, x, y){
     
     let picTile = new Image
-    picTile.src = 'https://livedoor.blogimg.jp/kamekameboy/imgs/9/d/9d34d6fc.png'
+
     let newX = (x+1)*backcgroundTileSize
     let newY = (y+1)*backcgroundTileSize
 
     let cropX
     let cropY
+    let picToRender
 
     switch(tileNumber){
-        case 1:
+        case 1:                 // obstacles
             cropX = 945
             cropY = 469
+            picTile.src = 'https://livedoor.blogimg.jp/kamekameboy/imgs/9/d/9d34d6fc.png'
             break;
         case 3:
-            cropX = 605
-            cropY = 310
+            cropX = ListofLinks.hero.cropX
+            cropY = ListofLinks.hero.cropY
+            picTile.src = ListofLinks.hero.img
             break;
         case 5:
-            cropX = 790
-            cropY = 205
+            cropX = ListofLinks.crystalsPYO.cropX
+            cropY = ListofLinks.crystalsPYO.cropY
+            picTile.src = ListofLinks.crystalsPYO.img
             break;
-        default:
+        default:                //open tile
             cropX = 808
             cropY = 471
+            picTile.src = 'https://livedoor.blogimg.jp/kamekameboy/imgs/9/d/9d34d6fc.png'   // grass
     }
     
     picTile.onload = function(){
